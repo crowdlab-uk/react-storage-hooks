@@ -1,11 +1,11 @@
-import { useState, Dispatch, SetStateAction } from 'react';
+import { useState, Dispatch, SetStateAction } from "react";
 
 import {
   useInitialState,
   useStorageListener,
   useStorageWriter,
   StorageObj,
-} from './common';
+} from "./common";
 
 function useStorageState<S>(
   storage: StorageObj,

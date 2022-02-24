@@ -1,22 +1,22 @@
-import { useReducer, Reducer, Dispatch } from 'react';
+import { useReducer, Reducer, Dispatch } from "react";
 
 import {
   useInitialState,
   useStorageListener,
   useStorageWriter,
   StorageObj,
-} from './common';
+} from "./common";
 
-const FORCE_STATE_ACTION = '__FORCE_STATE_INTERNAL_API__';
+const FORCE_STATE_ACTION = "__FORCE_STATE_INTERNAL_API__";
 type ForceStateAction<S> = { type: typeof FORCE_STATE_ACTION; payload: S };
 
 function isForceStateAction<S, A>(
   action: A | ForceStateAction<S>
 ): action is ForceStateAction<S> {
   return (
-    typeof action === 'object' &&
+    typeof action === "object" &&
     action !== null &&
-    'type' in action &&
+    "type" in action &&
     action.type === FORCE_STATE_ACTION
   );
 }

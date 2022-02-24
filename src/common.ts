@@ -1,22 +1,26 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from "react";
 
-export type StorageObj = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+export type StorageObj = {
+  getItem: (key: string) => unknown;
+  setItem: (key: string, value: unknown) => unknown;
+  removeItem: (key: string) => unknown;
+};
 
-function fromStorage<T>(value: string | null) {
-  return value !== null ? (JSON.parse(value) as T) : null;
+function fromStorage<T>(value: T | null) {
+  return value !== null ? ((value as unknown) as T) : null;
 }
 
 function readItem<T>(storage: StorageObj, key: string) {
   try {
     const storedValue = storage.getItem(key);
-    return fromStorage<T>(storedValue);
+    return fromStorage<T>((storedValue as unknown) as T);
   } catch (e) {
     return null;
   }
 }
 
 function toStorage<T>(value: T | null) {
-  return JSON.stringify(value);
+  return value;
 }
 
 function writeItem<T>(storage: StorageObj, key: string, value: T | null) {
@@ -92,18 +96,19 @@ export function useStorageListener<S>(
     function onStorageChange(event: StorageEvent) {
       if (event.key === key) {
         onChangeRef.current(
-          fromStorage<S>(event.newValue) ?? defaultStateRef.current
+          fromStorage<S>(event.newValue ? JSON.parse(event.newValue) : {}) ??
+            defaultStateRef.current
         );
       }
     }
 
     if (
-      typeof window !== 'undefined' &&
-      typeof window.addEventListener !== 'undefined'
+      typeof window !== "undefined" &&
+      typeof window.addEventListener !== "undefined"
     ) {
-      window.addEventListener('storage', onStorageChange);
+      window.addEventListener("storage", onStorageChange);
       return () => {
-        window.removeEventListener('storage', onStorageChange);
+        window.removeEventListener("storage", onStorageChange);
       };
     }
   }, [key]);
