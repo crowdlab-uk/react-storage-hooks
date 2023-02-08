@@ -1,6 +1,6 @@
 {
   "name": "@crowdlab/react-storage-hooks",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "React hooks for persistent state",
   "keywords": [
     "react",
