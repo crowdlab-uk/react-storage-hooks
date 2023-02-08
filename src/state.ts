@@ -1,11 +1,11 @@
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState, Dispatch, SetStateAction } from 'react';
 
 import {
   useInitialState,
   useStorageListener,
   useStorageWriter,
   StorageObj,
-} from "./common";
+} from './common';
 
 function useStorageState<S>(
   storage: StorageObj,
@@ -21,16 +21,29 @@ function useStorageState<S>(
 function useStorageState<S>(
   storage: StorageObj,
   key: string,
-  defaultState: S | (() => S) | null = null
+  defaultState: S | (() => S) | null = null,
+  serializeToJSON = false
 ) {
-  const [state, setState] = useState(
-    useInitialState(storage, key, defaultState)
-  );
+  const dS = serializeToJSON ? JSON.stringify(defaultState) : defaultState;
 
-  useStorageListener(storage, key, defaultState, setState);
+  const [state, setState] = useState(useInitialState(storage, key, dS));
+
+  useStorageListener(storage, key, dS, setState);
   const writeError = useStorageWriter(storage, key, state);
 
-  return [state, setState, writeError];
+  const setSerializedState = serializeToJSON
+    ? (s: any) => setState(s ? JSON.stringify(s) : null)
+    : setState;
+
+  const serializedState = serializeToJSON
+    ? state
+      ? // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        JSON.parse(state)
+      : null
+    : state;
+
+  return [serializedState, setSerializedState, writeError];
 }
 
 export default useStorageState;
